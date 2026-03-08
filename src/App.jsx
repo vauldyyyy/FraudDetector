@@ -137,10 +137,10 @@ export default function App() {
           // Seed the historical dataset for charts & metrics
           setDataset(mappedData);
           
-          // Seed the live feed (just recent 100)
+          // Seed the live feed (up to 1000)
           setLiveTransactions(prev => {
             const combined = [...mappedData, ...prev];
-            return combined.filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i).slice(0, 100);
+            return combined.filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i).slice(0, 1000);
           });
           addAuditLog(`Connected to Supabase. Loaded ${mappedData.length} historical database records.`, "success");
         } else if (error) {
@@ -198,7 +198,7 @@ export default function App() {
         tx.isLive = false; // Background data
         tx = applyAdminRules(tx, alertRules);
         
-        setLiveTransactions(prev => [tx, ...prev].slice(0, 100)); // Keep last 100
+        setLiveTransactions(prev => [tx, ...prev].slice(0, 1000)); // Keep last 1000
         
         // Note: We don't add mock transactions to the Audit Log to keep it clean for actual user actions
         if (tx.status === "BLOCKED" || tx.status === "FLAGGED") {
@@ -287,7 +287,7 @@ export default function App() {
       // Fallback: If DB insert fails (e.g., table not created yet), just add it to local state so the UI still works
       finalTx.isLive = true; 
       finalTx.fallback = true;
-      setLiveTransactions(prev => [finalTx, ...prev].slice(0, 100));
+      setLiveTransactions(prev => [finalTx, ...prev].slice(0, 1000));
       processNewUserTransaction(finalTx);
     } 
     // If successful, the Realtime subscription (above) will catch the INSERT and update the local state natively!
