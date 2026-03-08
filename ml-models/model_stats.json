@@ -1,0 +1,411 @@
+{
+  "meta": {
+    "training_samples": 528,
+    "test_samples": 132,
+    "fraud_rate_pct": 5.0,
+    "rf_auc": 0.9783,
+    "gb_auc": 0.9943,
+    "iso_auc": 0.728,
+    "ensemble_auc": 0.9909,
+    "ensemble_f1": 0.6667,
+    "ensemble_precision": 0.625,
+    "ensemble_recall": 0.7143,
+    "feature_importance": {
+      "Amount": 0.5967104962904982,
+      "Merchant_Category": 0.06623079282995449,
+      "Device_Type": 0.05998713457199361,
+      "State": 0.07748456772224709,
+      "Bank": 0.07308557161629571,
+      "Hour": 0.10630460068974638,
+      "Is_Night": 0.02019683627926435
+    },
+    "total_transactions": 66000,
+    "total_fraud": 3300,
+    "blocked_24h": 99,
+    "avg_latency_ms": 18.4
+  },
+  "hourly": [
+    {
+      "hour": "00:00",
+      "transactions": 360,
+      "fraud": 1,
+      "fraudRate": 4.17,
+      "amount": 206660
+    },
+    {
+      "hour": "01:00",
+      "transactions": 540,
+      "fraud": 2,
+      "fraudRate": 5.56,
+      "amount": 163813
+    },
+    {
+      "hour": "02:00",
+      "transactions": 390,
+      "fraud": 0,
+      "fraudRate": 0.0,
+      "amount": 65184
+    },
+    {
+      "hour": "03:00",
+      "transactions": 420,
+      "fraud": 1,
+      "fraudRate": 3.57,
+      "amount": 210954
+    },
+    {
+      "hour": "04:00",
+      "transactions": 330,
+      "fraud": 0,
+      "fraudRate": 0.0,
+      "amount": 58922
+    },
+    {
+      "hour": "05:00",
+      "transactions": 375,
+      "fraud": 1,
+      "fraudRate": 4.0,
+      "amount": 55304
+    },
+    {
+      "hour": "06:00",
+      "transactions": 420,
+      "fraud": 1,
+      "fraudRate": 3.57,
+      "amount": 212881
+    },
+    {
+      "hour": "07:00",
+      "transactions": 510,
+      "fraud": 1,
+      "fraudRate": 2.94,
+      "amount": 48605
+    },
+    {
+      "hour": "08:00",
+      "transactions": 375,
+      "fraud": 1,
+      "fraudRate": 4.0,
+      "amount": 52402
+    },
+    {
+      "hour": "09:00",
+      "transactions": 435,
+      "fraud": 0,
+      "fraudRate": 0.0,
+      "amount": 54098
+    },
+    {
+      "hour": "10:00",
+      "transactions": 465,
+      "fraud": 4,
+      "fraudRate": 12.9,
+      "amount": 375892
+    },
+    {
+      "hour": "11:00",
+      "transactions": 345,
+      "fraud": 3,
+      "fraudRate": 13.04,
+      "amount": 180115
+    },
+    {
+      "hour": "12:00",
+      "transactions": 585,
+      "fraud": 2,
+      "fraudRate": 5.13,
+      "amount": 46224
+    },
+    {
+      "hour": "13:00",
+      "transactions": 405,
+      "fraud": 2,
+      "fraudRate": 7.41,
+      "amount": 65331
+    },
+    {
+      "hour": "14:00",
+      "transactions": 435,
+      "fraud": 1,
+      "fraudRate": 3.45,
+      "amount": 54716
+    },
+    {
+      "hour": "15:00",
+      "transactions": 510,
+      "fraud": 1,
+      "fraudRate": 2.94,
+      "amount": 45178
+    },
+    {
+      "hour": "16:00",
+      "transactions": 315,
+      "fraud": 1,
+      "fraudRate": 4.76,
+      "amount": 292318
+    },
+    {
+      "hour": "17:00",
+      "transactions": 360,
+      "fraud": 2,
+      "fraudRate": 8.33,
+      "amount": 354251
+    },
+    {
+      "hour": "18:00",
+      "transactions": 405,
+      "fraud": 0,
+      "fraudRate": 0.0,
+      "amount": 65917
+    },
+    {
+      "hour": "19:00",
+      "transactions": 465,
+      "fraud": 3,
+      "fraudRate": 9.68,
+      "amount": 41212
+    },
+    {
+      "hour": "20:00",
+      "transactions": 330,
+      "fraud": 1,
+      "fraudRate": 4.55,
+      "amount": 286932
+    },
+    {
+      "hour": "21:00",
+      "transactions": 465,
+      "fraud": 3,
+      "fraudRate": 9.68,
+      "amount": 219821
+    },
+    {
+      "hour": "22:00",
+      "transactions": 345,
+      "fraud": 2,
+      "fraudRate": 8.7,
+      "amount": 525821
+    },
+    {
+      "hour": "23:00",
+      "transactions": 315,
+      "fraud": 0,
+      "fraudRate": 0.0,
+      "amount": 62109
+    }
+  ],
+  "categories": [
+    {
+      "category": "Gas Station",
+      "riskScore": 24,
+      "transactions": 1560,
+      "fraudRate": 6.4,
+      "fraudCount": 5
+    },
+    {
+      "category": "Travel",
+      "riskScore": 23,
+      "transactions": 1560,
+      "fraudRate": 6.4,
+      "fraudCount": 5
+    },
+    {
+      "category": "Utility Bills",
+      "riskScore": 22,
+      "transactions": 1440,
+      "fraudRate": 5.6,
+      "fraudCount": 4
+    },
+    {
+      "category": "E-commerce",
+      "riskScore": 21,
+      "transactions": 1500,
+      "fraudRate": 6.7,
+      "fraudCount": 5
+    },
+    {
+      "category": "Healthcare",
+      "riskScore": 21,
+      "transactions": 1820,
+      "fraudRate": 6.6,
+      "fraudCount": 6
+    },
+    {
+      "category": "Food & Dining",
+      "riskScore": 21,
+      "transactions": 1300,
+      "fraudRate": 4.6,
+      "fraudCount": 3
+    },
+    {
+      "category": "Retail",
+      "riskScore": 19,
+      "transactions": 1460,
+      "fraudRate": 1.4,
+      "fraudCount": 1
+    },
+    {
+      "category": "Education",
+      "riskScore": 19,
+      "transactions": 1340,
+      "fraudRate": 4.5,
+      "fraudCount": 3
+    },
+    {
+      "category": "Entertainment",
+      "riskScore": 18,
+      "transactions": 1220,
+      "fraudRate": 1.6,
+      "fraudCount": 1
+    }
+  ],
+  "states": [
+    {
+      "state": "West Bengal",
+      "volume": 8200,
+      "fraud": 50,
+      "rate": 6.1
+    },
+    {
+      "state": "Rajasthan",
+      "volume": 6700,
+      "fraud": 40,
+      "rate": 5.97
+    },
+    {
+      "state": "Telangana",
+      "volume": 6500,
+      "fraud": 50,
+      "rate": 7.69
+    },
+    {
+      "state": "Tamil Nadu",
+      "volume": 6200,
+      "fraud": 10,
+      "rate": 1.61
+    },
+    {
+      "state": "Delhi",
+      "volume": 6000,
+      "fraud": 0,
+      "rate": 0.0
+    },
+    {
+      "state": "Maharashtra",
+      "volume": 7900,
+      "fraud": 20,
+      "rate": 2.53
+    },
+    {
+      "state": "Karnataka",
+      "volume": 5300,
+      "fraud": 40,
+      "rate": 7.55
+    },
+    {
+      "state": "Gujarat",
+      "volume": 6200,
+      "fraud": 50,
+      "rate": 8.06
+    },
+    {
+      "state": "Kerala",
+      "volume": 7300,
+      "fraud": 60,
+      "rate": 8.22
+    },
+    {
+      "state": "Uttar Pradesh",
+      "volume": 5700,
+      "fraud": 10,
+      "rate": 1.75
+    }
+  ],
+  "banks": [
+    {
+      "bank": "Axis Bank",
+      "transactions": 5350,
+      "fraudCount": 40,
+      "fraudRate": 7.48
+    },
+    {
+      "bank": "Union Bank",
+      "transactions": 4400,
+      "fraudCount": 25,
+      "fraudRate": 5.68
+    },
+    {
+      "bank": "Bank of Baroda",
+      "transactions": 3800,
+      "fraudCount": 10,
+      "fraudRate": 2.63
+    },
+    {
+      "bank": "Kotak Mahindra",
+      "transactions": 3550,
+      "fraudCount": 0,
+      "fraudRate": 0.0
+    },
+    {
+      "bank": "HDFC Bank",
+      "transactions": 4550,
+      "fraudCount": 25,
+      "fraudRate": 5.49
+    },
+    {
+      "bank": "Punjab National Bank",
+      "transactions": 4200,
+      "fraudCount": 20,
+      "fraudRate": 4.76
+    },
+    {
+      "bank": "ICICI Bank",
+      "transactions": 3750,
+      "fraudCount": 40,
+      "fraudRate": 10.67
+    },
+    {
+      "bank": "SBI",
+      "transactions": 3400,
+      "fraudCount": 5,
+      "fraudRate": 1.47
+    }
+  ],
+  "devices": [
+    {
+      "device": "iPhone 14",
+      "transactions": 3150,
+      "fraudRate": 7.62
+    },
+    {
+      "device": "Google Pixel 7",
+      "transactions": 3030,
+      "fraudRate": 3.96
+    },
+    {
+      "device": "OnePlus 11",
+      "transactions": 3270,
+      "fraudRate": 2.75
+    },
+    {
+      "device": "Samsung Galaxy S23",
+      "transactions": 2700,
+      "fraudRate": 3.33
+    },
+    {
+      "device": "Vivo V27",
+      "transactions": 2820,
+      "fraudRate": 9.57
+    },
+    {
+      "device": "Oppo Reno 10",
+      "transactions": 2340,
+      "fraudRate": 2.56
+    },
+    {
+      "device": "Redmi Note 12",
+      "transactions": 2490,
+      "fraudRate": 4.82
+    }
+  ]
+}

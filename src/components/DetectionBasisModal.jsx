@@ -92,7 +92,7 @@ const DetectionBasisModal = ({ isOpen, onClose, transaction }) => {
           <div style={{ marginBottom: "24px" }}>
             <h4 style={{ color: "var(--text-dim)", fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "12px", fontWeight: 700 }}>Risk Indicators Evaluated</h4>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              {transaction.indicators.map((ind) => (
+              {(transaction.indicators || []).map((ind) => (
                 <div key={ind} style={{ 
                   background: "#fef2f2", 
                   padding: "10px 14px", 
@@ -116,7 +116,7 @@ const DetectionBasisModal = ({ isOpen, onClose, transaction }) => {
           <div>
             <h4 style={{ color: "var(--text-dim)", fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "16px", fontWeight: 700 }}>Ensemble Model Consensus</h4>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {Object.entries(transaction.modelScores).map(([model, score]) => (
+              {Object.entries(transaction.modelScores || {}).map(([model, score]) => (
                 <div key={model}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "12px" }}>
                     <span style={{ color: "var(--text-dim)", fontWeight: 600 }}>{model.replace(/([A-Z])/g, ' $1').trim()}</span>

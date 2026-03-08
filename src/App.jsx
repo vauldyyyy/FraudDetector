@@ -21,7 +21,7 @@ import RAGAssistant from "./components/RAGAssistant";
 import FraudNetworkGraph from "./components/FraudNetworkGraph";
 import IndiaHeatmap from "./components/IndiaHeatmap";
 import OTPModal from "./components/OTPModal";
-import AlertRulesEngine from "./components/AlertRulesEngine";
+import AlertRulesEngine, { DEFAULT_RULES } from "./components/AlertRulesEngine";
 import UserRiskProfile from "./components/UserRiskProfile";
 import FraudStatsSummary from "./components/FraudStatsSummary";
 import { exportToCSV } from "./utils/export-utils";
@@ -39,9 +39,43 @@ import {
   generateDataset, 
   HOURLY_FRAUD, 
   CATEGORY_RISK, 
-  STATE_DATA 
+  STATE_DATA,
+  predictFraud
 } from "./utils/data-engine";
 import { supabase } from "./lib/supabase";
+
+// Helper to apply Admin overrides defined in Alert Rules Engine
+const applyAdminRules = (tx, currentRules) => {
+  let finalStatus = tx.status;
+  const appliedRules = [];
+
+  for (const rule of currentRules.filter(r => r.enabled)) {
+    const txValue = tx[rule.field];
+    let match = false;
+    const ruleValue = rule.value;
+
+    if (rule.operator === 'gt' && txValue > ruleValue) match = true;
+    if (rule.operator === 'lt' && txValue < ruleValue) match = true;
+    if (rule.operator === 'eq' && String(txValue).toLowerCase() === String(ruleValue).toLowerCase()) match = true;
+
+    if (match) {
+      appliedRules.push(rule.name);
+      if (rule.action === 'Block') finalStatus = 'BLOCKED';
+      else if (rule.action === 'Flag' && finalStatus !== 'BLOCKED') finalStatus = 'FLAGGED';
+    }
+  }
+
+  if (appliedRules.length > 0) {
+    return {
+      ...tx,
+      status: finalStatus,
+      isFraud: finalStatus !== 'CLEARED',
+      explanation: `${tx.explanation} (Overridden by Admin Rules: ${appliedRules.join(', ')})`,
+      indicators: [...new Set([...(tx.indicators || []), 'admin_rule_override'])]
+    };
+  }
+  return tx;
+};
 
 export default function App() {
   const [view, setView] = useState("admin"); // 'admin' or 'user'
@@ -63,7 +97,7 @@ export default function App() {
   // Phase 9 State
   const [frozenAccounts, setFrozenAccounts] = useState(new Set());
   const [otpPending, setOtpPending] = useState(null); // holds a FLAGGED tx awaiting OTP
-  const [alertRules, setAlertRules] = useState([]);
+  const [alertRules, setAlertRules] = useState(DEFAULT_RULES);
   
   const counterRef = useRef(1000);
 
@@ -160,8 +194,9 @@ export default function App() {
     if (isMonitoring) {
       mockInterval = setInterval(() => {
         const isFraud = Math.random() < 0.08; // 8% chance of background fraud
-        const tx = generateTransaction(++counterRef.current, isFraud);
+        let tx = generateTransaction(++counterRef.current, isFraud);
         tx.isLive = false; // Background data
+        tx = applyAdminRules(tx, alertRules);
         
         setLiveTransactions(prev => [tx, ...prev].slice(0, 100)); // Keep last 100
         
@@ -177,49 +212,83 @@ export default function App() {
       supabase.removeChannel(subscription);
       if (mockInterval) clearInterval(mockInterval);
     };
-  }, [addAuditLog, isMonitoring]);
+  }, [addAuditLog, isMonitoring, alertRules]);
 
   const handleManualPayment = async (paymentData) => {
-    // Demo Override: Look for trigger words in the merchant name
+    const txId = ++counterRef.current;
     const merchantLower = (paymentData.merchant || "").toLowerCase();
-    
-    let isForcedFraud = null; // Let the engine decide randomly by default
-    if (merchantLower.includes("scam") || merchantLower.includes("fraud") || merchantLower.includes("fake")) {
-       isForcedFraud = true;
-    } else if (merchantLower.includes("safe") || merchantLower.includes("trusted") || merchantLower.includes("mom")) {
-       isForcedFraud = false;
-    }
+    const amount = parseFloat(paymentData.amount) || 500;
+    const hour = new Date().getHours();
 
-    // Generate full transaction details right away
-    const tx = generateTransaction(++counterRef.current, isForcedFraud); 
+    // Call the REAL Flask ML API (ensemble of RF + GradientBoosting + IsolationForest)
+    // trained on the 660-row CSV dataset
+    const mlResult = await predictFraud({
+      amount,
+      merchant: paymentData.merchant || 'Unknown',
+      category: paymentData.category || 'Retail',
+      device: paymentData.device || 'iPhone 14',
+      state: paymentData.state || 'Delhi',
+      bank: paymentData.bank || 'SBI',
+      hour,
+    });
+
+    const fraudScore = mlResult.risk_score;
+    const status = mlResult.status; // BLOCKED / FLAGGED / CLEARED from real model
+    const indicators = mlResult.indicators || [];
+    const explanation = mlResult.explanation || '';
+
+    // Build transaction object with real ML scores
+    const tx = {
+      id: `TXN${String(txId).padStart(8, '0')}`,
+      amount,
+      merchant: paymentData.merchant || 'Unknown',
+      device: 'iPhone 14',
+      state: 'Delhi',
+      bank: 'SBI',
+      hour,
+      isNight: hour >= 22 || hour <= 5,
+      isFraud: status !== 'CLEARED',
+      fraudScore,
+      indicators,
+      explanation,
+      timestamp: new Date().toISOString(),
+      status,
+      isLive: true,
+      modelScores: {
+        randomForest: mlResult.models_consensus?.random_forest || fraudScore,
+        xgboost: mlResult.models_consensus?.xgboost || fraudScore,
+        neuralNet: mlResult.models_consensus?.isolation_forest || fraudScore,
+        isolation: mlResult.models_consensus?.isolation_forest || fraudScore,
+      },
+      latency_ms: mlResult.latency_ms || 18,
+      model_version: mlResult.model_version || 'v2.0-ensemble'
+    };
     
-    // Override with user input
-    tx.amount = parseFloat(paymentData.amount) || tx.amount;
-    tx.merchant = paymentData.merchant || tx.merchant;
-    tx.timestamp = new Date().toISOString();
+    // Apply Admin alert rules over the ML prediction
+    const finalTx = applyAdminRules(tx, alertRules);
     
     // Attempt to push to Supabase
     const { error } = await supabase
       .from('transactions')
       .insert([{
-        amount: tx.amount,
-        merchant: tx.merchant,
-        fraud_score: tx.fraudScore,
-        status: tx.status,
-        device: tx.device,
-        hour: tx.hour,
-        indicators: tx.indicators,
-        explanation: tx.explanation,
-        is_fraud: tx.isFraud
+        amount: finalTx.amount,
+        merchant: finalTx.merchant,
+        fraud_score: finalTx.fraudScore,
+        status: finalTx.status,
+        device: finalTx.device,
+        hour: finalTx.hour,
+        indicators: finalTx.indicators,
+        explanation: finalTx.explanation,
+        is_fraud: finalTx.isFraud
       }]);
 
     if (error) {
       addAuditLog(`Supabase Insert Failed: ${error.message} (Falling back to local state)`, 'error');
       // Fallback: If DB insert fails (e.g., table not created yet), just add it to local state so the UI still works
-      tx.isLive = true; 
-      tx.fallback = true;
-      setLiveTransactions(prev => [tx, ...prev].slice(0, 100));
-      processNewUserTransaction(tx);
+      finalTx.isLive = true; 
+      finalTx.fallback = true;
+      setLiveTransactions(prev => [finalTx, ...prev].slice(0, 100));
+      processNewUserTransaction(finalTx);
     } 
     // If successful, the Realtime subscription (above) will catch the INSERT and update the local state natively!
   };

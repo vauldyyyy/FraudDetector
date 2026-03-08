@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Trash2, AlertCircle, Settings, ToggleLeft, ToggleRight } from 'lucide-react';
 
-const DEFAULT_RULES = [
+export const DEFAULT_RULES = [
   { id: 1, name: 'High Value Block', field: 'amount', operator: 'gt', value: 100000, action: 'Block', enabled: true },
   { id: 2, name: 'Night-time Flag', field: 'hour', operator: 'gt', value: 22, action: 'Flag', enabled: true },
   { id: 3, name: 'Device: Rooted', field: 'device', operator: 'eq', value: 'Rooted Android', action: 'Flag', enabled: false },
