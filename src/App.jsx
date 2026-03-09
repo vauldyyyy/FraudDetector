@@ -79,7 +79,8 @@ const applyAdminRules = (tx, currentRules) => {
 };
 
 export default function App() {
-  const [view, setView] = useState("admin"); // 'admin' or 'user'
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [view, setView] = useState(isMobile ? "user" : "admin"); // 'admin' or 'user'
   const [userSubView, setUserSubView] = useState("app"); // 'app' or 'qrcodes'
   const [dataset, setDataset] = useState([]); // Real dataset will load over network now
   const [liveTransactions, setLiveTransactions] = useState([]);
@@ -153,6 +154,14 @@ export default function App() {
 
     fetchInitialData();
 
+    // Check window resize for mobile view
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (mobile && view === 'admin') setView('user');
+    };
+    window.addEventListener('resize', handleResize);
+
     // 2. Subscribe to Supabase real-time inserts
     const subscription = supabase
       .channel('schema-db-changes')
@@ -213,6 +222,7 @@ export default function App() {
     return () => {
       supabase.removeChannel(subscription);
       if (mockInterval) clearInterval(mockInterval);
+      window.removeEventListener('resize', handleResize);
     };
   }, [addAuditLog, isMonitoring, alertRules]);
 
@@ -388,7 +398,10 @@ export default function App() {
         </div>
       </div>
 
-      <UserNav view={view} setView={setView} isRagOpen={isRagOpen} onToggleRAG={() => setIsRagOpen(!isRagOpen)} />
+      {/* Hide Admin/User nav on mobile completely */}
+      {!isMobile && (
+        <UserNav view={view} setView={setView} isRagOpen={isRagOpen} onToggleRAG={() => setIsRagOpen(!isRagOpen)} />
+      )}
       
       <NotificationCenter 
         notifications={notifications} 
