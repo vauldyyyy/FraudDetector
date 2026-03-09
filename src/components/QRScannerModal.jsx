@@ -28,7 +28,6 @@ function parseUPIString(raw) {
 
 // ─── Scanning Screen (camera) ──────────────────────────────────────────────────
 const CameraScanner = ({ onDetected, onError }) => {
-  const divRef = useRef(null);
   const scannerRef = useRef(null);
   const [status, setStatus] = useState('starting'); // 'starting' | 'scanning' | 'error'
   const [errorMsg, setErrorMsg] = useState('');
@@ -38,32 +37,54 @@ const CameraScanner = ({ onDetected, onError }) => {
 
     const startScanner = async () => {
       try {
-        // Dynamic import to avoid SSR issues
         const { Html5Qrcode } = await import('html5-qrcode');
-        if (!mounted || !divRef.current) return;
+        if (!mounted) return;
 
         const scanner = new Html5Qrcode('qr-scan-region');
         scannerRef.current = scanner;
 
-        await scanner.start(
-          { facingMode: 'environment' }, // rear camera by default
-          { fps: 10, qrbox: { width: 220, height: 220 }, aspectRatio: 1 },
-          (decoded) => {
-            if (!mounted) return;
-            onDetected(decoded);
-          },
-          () => {} // ignore non-QR frames
-        );
-        if (mounted) setStatus('scanning');
+        const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+        const onSuccess = (decoded) => { if (mounted) onDetected(decoded); };
+        const onFail = () => {};
+
+        // Strategy 1: Rear camera (ideal for scanning)
+        let started = false;
+        try {
+          await scanner.start({ facingMode: 'environment' }, config, onSuccess, onFail);
+          started = true;
+        } catch (_) {}
+
+        // Strategy 2: Front camera fallback
+        if (!started) {
+          try {
+            await scanner.start({ facingMode: 'user' }, config, onSuccess, onFail);
+            started = true;
+          } catch (_) {}
+        }
+
+        // Strategy 3: Let browser pick any camera
+        if (!started) {
+          const devices = await Html5Qrcode.getCameras();
+          if (devices && devices.length > 0) {
+            await scanner.start(devices[0].id, config, onSuccess, onFail);
+            started = true;
+          }
+        }
+
+        if (started && mounted) {
+          setStatus('scanning');
+        } else {
+          throw new Error('No camera could be started');
+        }
       } catch (err) {
         if (!mounted) return;
         const msg = err?.message || String(err);
-        if (msg.includes('permission') || msg.includes('NotAllowed')) {
-          setErrorMsg('Camera permission denied. Please allow camera access and try again.');
-        } else if (msg.includes('NotFound') || msg.includes('no camera')) {
-          setErrorMsg('No camera found on this device. Use the Demo QR tab instead.');
+        if (msg.includes('Permission') || msg.includes('NotAllowed') || msg.includes('denied')) {
+          setErrorMsg('Camera blocked. Please tap the 🔒 padlock in your browser address bar and allow camera access, then reload.');
+        } else if (msg.includes('NotFound') || msg.includes('no camera') || msg.includes('No camera')) {
+          setErrorMsg('No camera found. Switch to the "Enter UPI / Demo" tab to test manually.');
         } else {
-          setErrorMsg(`Camera error: ${msg}`);
+          setErrorMsg('Camera could not start. Make sure you are on HTTPS. Use the demo tab as fallback.');
         }
         setStatus('error');
         onError && onError(msg);

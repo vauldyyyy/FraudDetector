@@ -344,6 +344,7 @@ export default function App() {
     { id: "analysis", label: "Analysis" },
     { id: "network", label: "🕸️ Network" },
     { id: "rules", label: "⚙️ Alert Rules" },
+    { id: "qrdemo", label: "🔳 Demo QR Codes" },
   ];
 
   return (
@@ -353,50 +354,43 @@ export default function App() {
       color: "var(--text-dim)",
       overflowX: "hidden",
     }}>
-      {/* GLOBAL HEADER */}
-      <div style={{
-        background: "linear-gradient(180deg,#ffffff 0%,#f8fafc 100%)",
-        borderBottom: "1px solid var(--border-color)",
-        padding: "0 28px",
-        position: "sticky", top: 0, zIndex: 100,
-        boxShadow: "0 1px 2px 0 rgb(0 0 0 / 0.05)"
-      }}>
-        <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 60 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{
-              width: 36, height: 36,
-              background: "linear-gradient(135deg,#3b82f6,#2563eb)",
-              borderRadius: 8,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 18, fontWeight: 900, color: "#fff",
-              boxShadow: "0 4px 10px #3b82f644",
-            }}>⛨</div>
-            <div>
-              <div style={{ color: "var(--text-main)", fontSize: 15, fontWeight: 800, letterSpacing: "0.02em" }}>UPI FRAUD SHIELD</div>
-              <div style={{ color: "var(--accent-blue)", fontSize: 10, letterSpacing: "0.1em", marginTop: 1, fontWeight: 600 }}>AI-POWERED TRANSACTION INTELLIGENCE</div>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            {alertCount > 0 && (
+      {/* GLOBAL HEADER — hidden on mobile (mobile gets the UPI app header) */}
+      {!isMobile && (
+        <div style={{
+          background: "linear-gradient(180deg,#ffffff 0%,#f8fafc 100%)",
+          borderBottom: "1px solid var(--border-color)",
+          padding: "0 28px",
+          position: "sticky", top: 0, zIndex: 100,
+          boxShadow: "0 1px 2px 0 rgb(0 0 0 / 0.05)"
+        }}>
+          <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 60 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
               <div style={{
-                background: "#fef2f2", border: "1px solid #fca5a5",
-                borderRadius: 20, padding: "4px 12px",
-                color: "#dc2626", fontSize: 12, fontWeight: 700,
-              }}>
-                🚨 {alertCount} ALERTS
+                width: 36, height: 36,
+                background: "linear-gradient(135deg,#3b82f6,#2563eb)",
+                borderRadius: 8,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 18, fontWeight: 900, color: "#fff",
+                boxShadow: "0 4px 10px #3b82f644",
+              }}>⛨</div>
+              <div>
+                <div style={{ color: "var(--text-main)", fontSize: 15, fontWeight: 800, letterSpacing: "0.02em" }}>UPI FRAUD SHIELD</div>
+                <div style={{ color: "var(--accent-blue)", fontSize: 10, letterSpacing: "0.1em", marginTop: 1, fontWeight: 600 }}>AI-POWERED TRANSACTION INTELLIGENCE</div>
               </div>
-            )}
-             <div style={{
-                background: "#f0fdf4", border: "1px solid #86efac",
-                borderRadius: 6, padding: "5px 14px",
-                color: "#16a34a", fontSize: 11, fontWeight: 700,
-              }}>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              {alertCount > 0 && (
+                <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 20, padding: "4px 12px", color: "#dc2626", fontSize: 12, fontWeight: 700 }}>
+                  🚨 {alertCount} ALERTS
+                </div>
+              )}
+              <div style={{ background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 6, padding: "5px 14px", color: "#16a34a", fontSize: 11, fontWeight: 700 }}>
                 ● SUPABASE LIVE
               </div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Hide Admin/User nav on mobile completely */}
       {!isMobile && (
@@ -882,36 +876,20 @@ export default function App() {
             {activeTab === "rules" && (
               <AlertRulesEngine onRulesChange={setAlertRules} />
             )}
+
+            {activeTab === "qrdemo" && (
+              <DemoQRCodes />
+            )}
           </>
         )}
 
-        {/* USER VIEW — Mobile GPay-Style App + Demo QR Codes */}
+        {/* USER VIEW — Pure Mobile UPI App (no admin chrome) */}
         {view === 'user' && (
-          <div>
-            {/* Sub-view switcher */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 20, padding: '0 4px' }}>
-              {[
-                { id: 'app', label: '📱 UPI Payment App' },
-                { id: 'qrcodes', label: '🔳 Demo QR Codes for Judges' },
-              ].map(sv => (
-                <button key={sv.id} onClick={() => setUserSubView(sv.id)} style={{
-                  padding: '9px 22px', borderRadius: 12, cursor: 'pointer', fontWeight: 700, fontSize: 13,
-                  border: userSubView === sv.id ? '2px solid #3b82f6' : '2px solid #e2e8f0',
-                  background: userSubView === sv.id ? '#eff6ff' : 'white',
-                  color: userSubView === sv.id ? '#2563eb' : '#64748b',
-                  transition: 'all 0.2s',
-                }}>{sv.label}</button>
-              ))}
-            </div>
-            {userSubView === 'app' && (
-              <MobileUPIApp
-                transactions={liveTransactions}
-                onPayment={handleManualPayment}
-                onViewBasis={handleViewBasis}
-              />
-            )}
-            {userSubView === 'qrcodes' && <DemoQRCodes />}
-          </div>
+          <MobileUPIApp
+            transactions={liveTransactions}
+            onPayment={handleManualPayment}
+            onViewBasis={handleViewBasis}
+          />
         )}
 
         {/* OTP Modal for FLAGGED payments */}
