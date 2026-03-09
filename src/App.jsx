@@ -26,6 +26,7 @@ import UserRiskProfile from "./components/UserRiskProfile";
 import FraudStatsSummary from "./components/FraudStatsSummary";
 import { exportToCSV } from "./utils/export-utils";
 import MobileUPIApp from "./components/MobileUPIApp";
+import DemoQRCodes from "./components/DemoQRCodes";
 
 // Constants & Utils
 import { 
@@ -79,6 +80,7 @@ const applyAdminRules = (tx, currentRules) => {
 
 export default function App() {
   const [view, setView] = useState("admin"); // 'admin' or 'user'
+  const [userSubView, setUserSubView] = useState("app"); // 'app' or 'qrcodes'
   const [dataset, setDataset] = useState([]); // Real dataset will load over network now
   const [liveTransactions, setLiveTransactions] = useState([]);
   const [activeTab, setActiveTab] = useState("overview");
@@ -870,13 +872,33 @@ export default function App() {
           </>
         )}
 
-        {/* USER VIEW — Mobile GPay-Style App */}
+        {/* USER VIEW — Mobile GPay-Style App + Demo QR Codes */}
         {view === 'user' && (
-          <MobileUPIApp
-            transactions={liveTransactions}
-            onPayment={handleManualPayment}
-            onViewBasis={handleViewBasis}
-          />
+          <div>
+            {/* Sub-view switcher */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 20, padding: '0 4px' }}>
+              {[
+                { id: 'app', label: '📱 UPI Payment App' },
+                { id: 'qrcodes', label: '🔳 Demo QR Codes for Judges' },
+              ].map(sv => (
+                <button key={sv.id} onClick={() => setUserSubView(sv.id)} style={{
+                  padding: '9px 22px', borderRadius: 12, cursor: 'pointer', fontWeight: 700, fontSize: 13,
+                  border: userSubView === sv.id ? '2px solid #3b82f6' : '2px solid #e2e8f0',
+                  background: userSubView === sv.id ? '#eff6ff' : 'white',
+                  color: userSubView === sv.id ? '#2563eb' : '#64748b',
+                  transition: 'all 0.2s',
+                }}>{sv.label}</button>
+              ))}
+            </div>
+            {userSubView === 'app' && (
+              <MobileUPIApp
+                transactions={liveTransactions}
+                onPayment={handleManualPayment}
+                onViewBasis={handleViewBasis}
+              />
+            )}
+            {userSubView === 'qrcodes' && <DemoQRCodes />}
+          </div>
         )}
 
         {/* OTP Modal for FLAGGED payments */}
