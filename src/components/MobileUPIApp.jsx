@@ -120,12 +120,16 @@ const HomeScreen = ({ transactions, onSend, onQR, onViewBasis }) => {
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [showSend, setShowSend] = useState(false);
 
+  const BASE_BALANCE = 50000;
   const balance = useMemo(() => {
-    const cleared = transactions.filter(t => t.status === 'CLEARED').reduce((s, t) => s + (t.amount || 0), 0);
-    return Math.max(24850, 50000 - (cleared % 30000));
+    const spent = transactions
+      .filter(t => t.status === 'CLEARED')
+      .reduce((s, t) => s + (t.amount || 0), 0);
+    return Math.max(0, BASE_BALANCE - spent);
   }, [transactions]);
 
-  const recent = transactions.slice(0, 4);
+  const recent = transactions.slice(0, 5);
+
 
   const quickActions = [
     { icon: <Send size={22} />, label: 'Send', color: '#1a73e8', onClick: () => setShowSend(true) },

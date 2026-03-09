@@ -886,7 +886,7 @@ export default function App() {
         {/* USER VIEW — Pure Mobile UPI App (no admin chrome) */}
         {view === 'user' && (
           <MobileUPIApp
-            transactions={liveTransactions}
+            transactions={liveTransactions.filter(t => t.isLive === true)}
             onPayment={handleManualPayment}
             onViewBasis={handleViewBasis}
           />
