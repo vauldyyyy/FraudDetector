@@ -1,0 +1,11 @@
+# Python backend — hosted on Render, NOT needed on Vercel
+requirements.txt
+api/
+flask_server.py
+train_model.py
+ml-models/
+datasets/
+runtime.txt
+__pycache__/
+*.pkl
+*.py
