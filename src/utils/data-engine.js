@@ -8,7 +8,7 @@
 
 import { MERCHANT_CATEGORIES, DEVICES, STATES, BANKS, FRAUD_INDICATORS } from "../constants/mock-data";
 
-const ML_API = import.meta.env.PROD ? "" : "http://localhost:5001";
+const ML_API = import.meta.env.VITE_ML_API_URL || "https://frauddetector-bo88.onrender.com";
 
 // ─── Utility helpers ─────────────────────────────────────────────────────────
 export const rng = (min, max) => Math.random() * (max - min) + min;
