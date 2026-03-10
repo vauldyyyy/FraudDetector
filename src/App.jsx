@@ -27,6 +27,8 @@ import FraudStatsSummary from "./components/FraudStatsSummary";
 import { exportToCSV } from "./utils/export-utils";
 import MobileUPIApp from "./components/MobileUPIApp";
 import DemoQRCodes from "./components/DemoQRCodes";
+import ScamAnalyzer from "./components/ScamAnalyzer";
+import BehavioralIntelligence from "./components/BehavioralIntelligence";
 
 // Constants & Utils
 import { 
@@ -344,6 +346,8 @@ export default function App() {
     { id: "analysis", label: "Analysis" },
     { id: "network", label: "🕸️ Network" },
     { id: "rules", label: "⚙️ Alert Rules" },
+    { id: "scam", label: "🔍 Scam Analyzer" },
+    { id: "behavior", label: "🧠 Behavior" },
     { id: "qrdemo", label: "🔳 Demo QR Codes" },
   ];
 
@@ -875,6 +879,14 @@ export default function App() {
 
             {activeTab === "rules" && (
               <AlertRulesEngine onRulesChange={setAlertRules} />
+            )}
+
+            {activeTab === "scam" && (
+              <ScamAnalyzer />
+            )}
+
+            {activeTab === "behavior" && (
+              <BehavioralIntelligence transactions={liveTransactions} />
             )}
 
             {activeTab === "qrdemo" && (
