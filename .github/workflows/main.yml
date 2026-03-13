@@ -1,0 +1,42 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    - name: Install dependencies
+      working-directory: ./api
+      run: |
+        python -m pip install --upgrade pip
+        pip install fastapi uvicorn pydantic slowapi pytest httpx pandas scikit-learn xgboost shap
+    - name: Run Pytest
+      working-directory: ./api
+      run: |
+        pytest test_main.py -v
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+    - name: Install frontend dependencies
+      run: npm ci
+    - name: Run Linter
+      run: npm run lint --if-present
+    - name: Run Jest tests
+      run: npm test -- --passWithNoTests

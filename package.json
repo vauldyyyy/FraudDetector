@@ -16,7 +16,8 @@
     "qrcode.react": "^4.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "recharts": "^2.10.3"
+    "recharts": "^2.10.3",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@types/react": "^18.2.37",
