@@ -6,9 +6,21 @@ dist/
 __pycache__/
 *.py[cod]
 *.pyo
-ml-models/*.pkl
 venv/
 .env
+
+# ML Models (large binary files)
+ml-models/*.pkl
+ml-models/shap_values.pkl
+
+# Large datasets (regenerate with scripts/generate_dataset.py)
+datasets/fraudlens_transactions.csv
+
+# Keep small config/stats files
+!ml-models/model_stats.json
+!ml-models/model_stats_v2.json
+!ml-models/feature_config.json
+!ml-models/label_encoders.pkl
 
 # OS
 .DS_Store

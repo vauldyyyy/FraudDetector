@@ -1,0 +1,73 @@
+name: FraudLens CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      
+      - name: Run ML pipeline smoke test
+        run: |
+          python -c "
+          from train_model_v2 import load_and_prepare_data, encode_features
+          print('✅ Import test passed')
+          "
+      
+      - name: Run API import test
+        run: |
+          python -c "
+          from app_server import app
+          print('✅ FastAPI app imports successfully')
+          "
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build
+        run: npm run build
+      
+      - name: Run tests
+        run: npm test -- --watchAll=false --passWithNoTests
+
+  build-docker:
+    needs: [test-backend, test-frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Build Docker image
+        run: docker build -t fraudlens-api:${{ github.sha }} .
+      
+      - name: Verify container starts
+        run: |
+          docker run -d --name test-api -p 8000:8000 fraudlens-api:${{ github.sha }}
+          sleep 5
+          curl -f http://localhost:8000/health || exit 1
+          docker stop test-api
