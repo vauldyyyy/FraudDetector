@@ -13,8 +13,9 @@ venv/
 ml-models/*.pkl
 ml-models/shap_values.pkl
 
-# Large datasets (regenerate with scripts/generate_dataset.py)
+# Large datasets (regenerate with scripts/)
 datasets/fraudlens_transactions.csv
+datasets/creditcard_real.csv
 
 # Keep small config/stats files
 !ml-models/model_stats.json

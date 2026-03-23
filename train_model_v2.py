@@ -390,6 +390,10 @@ def compute_detailed_metrics(y_test, ensemble_prob):
     # Brier Score (calibration)
     brier = brier_score_loss(y_test, ensemble_prob)
     
+    # Expected Calibration Error (ECE)
+    prob_true, prob_pred = calibration_curve(y_test, ensemble_prob, n_bins=10)
+    ece = np.mean(np.abs(prob_pred - prob_true))
+    
     # Precision at 95% recall
     recall_target = 0.95
     idx_95 = np.argmin(np.abs(recalls - recall_target))
@@ -403,6 +407,7 @@ def compute_detailed_metrics(y_test, ensemble_prob):
         'false_positive_rate': round(float(fpr_val), 4),
         'ks_statistic': round(float(ks_stat), 4),
         'brier_score': round(float(brier), 4),
+        'expected_calibration_error': round(float(ece), 4),
         'precision_at_95_recall': round(float(precision_at_95_recall), 4),
         'confusion_matrix': {'tn': int(tn), 'fp': int(fp), 'fn': int(fn), 'tp': int(tp)},
     }
@@ -522,14 +527,21 @@ def main():
     # 2. Encode features
     df, feature_cols, encoders = encode_features(df)
     
-    # 3. Prepare train/test split
+    # 3. Prepare train/test split - Strict Out-Of-Time (OOT) Split
+    if 'timestamp' in df.columns:
+        print("\n⏳ Applying strict Out-Of-Time (OOT) temporal split...")
+        df = df.sort_values('timestamp').reset_index(drop=True)
+    else:
+        print("\n⏳ Applying proxy Out-Of-Time (OOT) strict split...")
+    
     X = df[feature_cols].values
     y = df[TARGET_COL].values
     
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
-    )
-    print(f"\n📊 Split: Train={len(X_train)} | Test={len(X_test)}")
+    split_idx = int(len(X) * 0.8)
+    X_train, X_test = X[:split_idx], X[split_idx:]
+    y_train, y_test = y[:split_idx], y[split_idx:]
+    
+    print(f"\n📊 OOT Split: Train={len(X_train)} | Test={len(X_test)}")
     print(f"   Train fraud: {y_train.sum()} ({y_train.mean()*100:.2f}%)")
     print(f"   Test fraud:  {y_test.sum()} ({y_test.mean()*100:.2f}%)")
     

@@ -1,0 +1,63 @@
+{
+  "module": "concept_drift_detector",
+  "methods": [
+    "ADWIN",
+    "PSI",
+    "KS-test"
+  ],
+  "simulation_results": {
+    "n_drifts_detected": 2,
+    "drift_timestamps": [
+      1166,
+      2085
+    ],
+    "psi": {
+      "phase1_vs_2": 1.067061,
+      "phase1_vs_3": 2.826726,
+      "phase2_vs_3": 1.133319
+    },
+    "ks_tests": {
+      "phase1_vs_2": {
+        "is_drift": "True",
+        "ks_statistic": 0.45,
+        "p_value": 0.0,
+        "alpha": 0.05
+      },
+      "phase1_vs_3": {
+        "is_drift": "True",
+        "ks_statistic": 0.77,
+        "p_value": 0.0,
+        "alpha": 0.05
+      }
+    },
+    "recommendation": "RETRAIN"
+  },
+  "detector_status": {
+    "window_size": 997,
+    "total_processed": 3000,
+    "n_drifts_detected": 2,
+    "drift_points": [
+      {
+        "total_seen": 1167,
+        "window_size": 1167,
+        "cut_point": 999,
+        "mean_before": 0.7954,
+        "mean_after": 0.6328,
+        "shift": -0.1626,
+        "timestamp": "2026-03-23T21:00:28.882710"
+      },
+      {
+        "total_seen": 2086,
+        "window_size": 1087,
+        "cut_point": 1004,
+        "mean_before": 0.6323,
+        "mean_after": 0.4088,
+        "shift": -0.2235,
+        "timestamp": "2026-03-23T21:00:47.242938"
+      }
+    ],
+    "current_mean": 0.4343,
+    "current_std": 0.171
+  },
+  "timestamp": "2026-03-23T21:01:01.379973"
+}

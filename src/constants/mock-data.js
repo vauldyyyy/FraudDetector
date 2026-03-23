@@ -44,3 +44,17 @@ export const SMOTE_DATA = [
   {label:"Before SMOTE",legit:627,fraud:33},
   {label:"After SMOTE",legit:627,fraud:570},
 ];
+
+export const PR_DATA = Array.from({length:21},(_,i)=>{
+  const recall = i/20;
+  return {
+    recall: Math.round(recall*100)/100,
+    ensemble: Math.max(0.05, 1 - Math.pow(recall, 8)*0.2),
+    rf: Math.max(0.05, 1 - Math.pow(recall, 4)*0.4),
+    xgb: Math.max(0.05, 1 - Math.pow(recall, 6)*0.3),
+  };
+}).map(d=>({...d,
+  ensemble:Math.round(d.ensemble*1000)/1000,
+  rf:Math.round(d.rf*1000)/1000,
+  xgb:Math.round(d.xgb*1000)/1000,
+}));

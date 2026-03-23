@@ -1,29 +1,30 @@
 <h1 align="center">🔍 FraudLens</h1>
 
 <p align="center">
-  <strong>Real-Time Adaptive Fraud Detection for India's UPI Ecosystem</strong>
+  <strong>Adaptive Ensemble for Out-of-Time Financial Fraud Detection</strong>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white" />
   <img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi" />
-  <img src="https://img.shields.io/badge/XGBoost-FF6600?style=for-the-badge&logo=xgboost&logoColor=white" />
+  <img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" />
   <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
-  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+  <img src="https://img.shields.io/badge/River-Concept_Drift-purple?style=for-the-badge" />
   <img src="https://img.shields.io/badge/SHAP-Explainable_AI-green?style=for-the-badge" />
 </p>
 
 ---
 
-## 📋 Problem Statement
+## 📋 Problem Statement & Research Methodology
 
-India processed **172+ billion UPI transactions** worth ₹260 trillion in FY2025, making it the world's largest real-time payment system. The RBI reported **84,000+ UPI fraud cases** in the same period. Traditional rule-based fraud detection systems suffer from:
+India processed **172+ billion UPI transactions** worth ₹260 trillion in FY2025. While traditional ML models achieve high theoretical accuracy on these datasets, they routinely fail in production due to **temporal data leakage** and **adversarial concept drift** (fraudsters adapting techniques). 
 
-- **High false positive rates (~15%)** that block legitimate transactions
-- **Inability to adapt** to evolving fraud patterns
-- **Lack of explainability** for regulatory compliance (RBI 2024 AI guidelines)
+**FraudLens** is a research-oriented ML pipeline designed to detect anomalous transaction behavior under strict out-of-time (OOT) validation constraints. Moving beyond static tabular modeling, this architecture implements:
+- **Dynamic Stacking Ensembles** with Probability Calibration (ECE)
+- **Sequential BiLSTM-Attention Embeddings** to track user behavior over time
+- **Real-Time ADWIN Drift Detection** to combat adversarial behavior shifts in highly imbalanced (5% positive) data streams.
 
-**FraudLens** addresses these gaps through a **5-model stacking ensemble** with SHAP-based explainable AI, achieving **>99% AUC-ROC** with **<0.5% false positive rate**.
+Validation includes cross-domain testing on the real-world **IEEE-CIS / MLG-ULB Credit Card** dataset to quantify synthetic-to-real degradation, mapping exact architectural failure modes to improve dynamic recovery.
 
 ## 🏗️ System Architecture
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { LineChart, Line, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
-import { MODEL_METRICS, ROC_DATA, FEATURE_IMPORTANCE } from '../../constants/mock-data';
+import { MODEL_METRICS, ROC_DATA, PR_DATA, FEATURE_IMPORTANCE } from '../../constants/mock-data';
 import SectionHeader from '../SectionHeader';
 import CustomTooltip from '../CustomTooltip';
 
@@ -28,13 +28,27 @@ export default function ModelsTab() {
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
         <div style={{ background: "var(--bg-primary)", border: "1px solid var(--border-color)", borderRadius: 12, padding: "20px 24px", boxShadow: "var(--card-shadow)" }}>
           <SectionHeader title="ROC Curves" subtitle="Evaluation Metrics" accent="#10b981" lightMode />
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={ROC_DATA}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
               <XAxis dataKey="fpr" tick={{ fill: "#64748b", fontSize: 11 }} />
+              <YAxis tick={{ fill: "#64748b", fontSize: 11 }} />
+              <RechartsTooltip content={<CustomTooltip lightMode />} />
+              <Legend wrapperStyle={{ fontSize: 12, color: "#475569" }} />
+              <Line type="monotone" dataKey="ensemble" name="Ensemble" stroke="#f97316" strokeWidth={3} dot={false} />
+              <Line type="monotone" dataKey="xgb" name="XGBoost" stroke="#10b981" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <div style={{ background: "var(--bg-primary)", border: "1px solid var(--border-color)", borderRadius: 12, padding: "20px 24px", boxShadow: "var(--card-shadow)" }}>
+          <SectionHeader title="PR Curves" subtitle="Precision-Recall" accent="#3b82f6" lightMode />
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={PR_DATA}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+              <XAxis dataKey="recall" tick={{ fill: "#64748b", fontSize: 11 }} />
               <YAxis tick={{ fill: "#64748b", fontSize: 11 }} />
               <RechartsTooltip content={<CustomTooltip lightMode />} />
               <Legend wrapperStyle={{ fontSize: 12, color: "#475569" }} />
