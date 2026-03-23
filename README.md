@@ -92,17 +92,17 @@ The near-perfect synthetic results (ROC-AUC 0.9999) are documented honestly — 
 
 | Model | ROC-AUC | PR-AUC | FPR |
 |-------|---------|--------|-----|
-| XGBoost | TBD | TBD | TBD |
-| **Stacking Ensemble** | **TBD** | **TBD** | **TBD** |
+| XGBoost | 0.9854 | 0.7926 | 0.00012 |
+| **Stacking Ensemble** | **0.9877** | **0.8034** | **0.00002** |
 
 ### Concept Drift Analysis
 
 | Drift Condition | ROC-AUC | ΔvsBaseline |
 |----------------|---------|-------------|
-| No drift (baseline) | TBD | – |
-| Gradual drift (40% intensity) | TBD | TBD |
-| Sudden drift (60% new patterns) | TBD | TBD |
-| After hybrid retraining | TBD | TBD |
+| No drift (baseline) | 0.9016 | – |
+| Gradual drift (40% intensity) | 0.9178 | +0.0162 |
+| Sudden drift (60% new patterns) | 0.5806 | -0.3210 |
+| After hybrid retraining | 0.8595 | +0.2789 (Recovery) |
 
 ---
 
