@@ -1,0 +1,15 @@
+# FraudLens - Render Deployment Config
+# Render will auto-deploy when connected to GitHub
+
+services:
+  - type: web
+    name: fraudlens-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt && python scripts/generate_dataset.py && python train_model_v2.py
+    startCommand: uvicorn app_server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHONIOENCODING
+        value: utf-8
+      - key: JWT_SECRET
+        generateValue: true
+    plan: free
