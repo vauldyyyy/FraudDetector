@@ -9,6 +9,49 @@
 
 ---
 
+## v3 — production scoring pipeline (latest)
+
+The original serving code had three defects that made its live scores unreliable: `api/main.py`
+failed on import, the saved models expected different feature counts (7 vs 20), and the encoder
+lookup used the wrong keys, so every categorical feature was silently sent as 0. v3 replaces the
+serving path with one coherent pipeline (`fraudlens/`):
+
+- **Point-in-time feature store** shared by training and serving. Velocity (1h/24h counts and
+  sums), time since last payment, new device/state/category and amount deviation from the
+  user's own history are computed only from *earlier* transactions. Training replays the log
+  through the same code the API runs, so offline and online features are identical (tested).
+- **Time-ordered evaluation**: train on the first 70% of the log, pick thresholds on the next
+  10%, report once on the latest 20%.
+- **Two decision thresholds chosen on validation**: BLOCK at ≥95% precision, FLAG for review at
+  ≥50% precision.
+- **Pickle-free, versioned model bundle** (XGBoost JSON + metadata with feature list,
+  vocabularies, thresholds, data hash and metrics); the service refuses a bundle whose feature
+  list does not match the code.
+- **FastAPI service** with input validation, idempotent replays per `transaction_id`, top-5 SHAP
+  explanations per decision and a `/metrics` endpoint.
+
+| Test set (synthetic, latest 20%) | ROC-AUC | PR-AUC | Recall @ 1% FPR |
+|---|---|---|---|
+| XGBoost, point-in-time features | 0.999 | 0.990 | 0.984 |
+| Logistic regression baseline | 0.988 | 0.938 | 0.930 |
+
+At the BLOCK threshold: 95.8% precision, 97.7% recall. Scoring latency (single process,
+in-process HTTP): **p95 3.3 ms, ~330 req/s per worker**; model + features only: p95 0.56 ms.
+Full tables: [docs/EVALUATION_V3.md](docs/EVALUATION_V3.md), [docs/BENCHMARK_V3.md](docs/BENCHMARK_V3.md).
+The synthetic fraud patterns are easy to separate; the real-data results below are the
+meaningful test of generalisation.
+
+```bash
+pip install -r requirements-service.txt
+python scripts/generate_dataset.py          # synthetic log (seeded)
+python -m fraudlens.train                   # -> ml-models/fraudlens_v3 + docs/EVALUATION_V3.md
+uvicorn fraudlens.service:app --port 8000   # POST /v1/score
+python -m pytest tests                      # features, parity, training, API
+python scripts/benchmark_service.py         # -> docs/BENCHMARK_V3.md
+```
+
+---
+
 ## What This Project Actually Is
 
 This is **not** just a fraud detection system with high accuracy.
